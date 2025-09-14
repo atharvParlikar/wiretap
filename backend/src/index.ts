@@ -17,11 +17,19 @@ declare module 'hono' {
 }
 
 // CORS MIDDLEWARE
-app.use('*', cors());
+app.use(
+  '*',
+  cors({
+    origin: (origin) => origin, // dynamically echo back the request origin
+    credentials: true,          // allow credentials (cookies/headers)
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+  })
+)
 
 // JWT MIDDLEWARE
 app.use('/api/*', async (c, next) => {
-  const token = getCookie(c, 'token')
+  const token = getCookie(c, 'token');
   if (!token) {
     c.status(401)
     return c.json({ error: 'Unauthorized' })
@@ -38,9 +46,7 @@ app.use('/api/*', async (c, next) => {
 });
 
 app.post('/login', async (c) => {
-  console.log("got here");
   const { email }: { email: string } = await c.req.json()
-  console.log('login attempt for', email)
 
   try {
     const user = await prisma.user.findUnique({
@@ -52,15 +58,16 @@ app.post('/login', async (c) => {
       return c.json({ error: 'User not found' });
     }
 
-    const token = jwt.sign({ userId: user.id }, SECRET)
+    const token = jwt.sign({ userId: user.id }, SECRET);
 
     setCookie(c, 'token', token, {
       httpOnly: true,
       secure: false,
-      sameSite: 'Strict',
       path: '/',
       maxAge: 60 * 60 * 24 * 7 // 1 week
-    })
+    });
+
+    console.log(c.res);
 
     return c.json({ message: 'Logged in!', user_id: user.id });
   } catch (e) {
@@ -86,9 +93,9 @@ app.post('/signup', async (c) => {
 
     console.log(user);
     const token = jwt.sign({ userId: user.id }, SECRET);
-
     return c.json({ user_id: user.id, jwt: token });
   } catch (e) {
+
     console.log(e);
 
     //  TODO: send error back to user
@@ -97,9 +104,19 @@ app.post('/signup', async (c) => {
   }
 });
 
+app.get("/api/test", async (c) => {
+  console.log(c.get("jwtPayload"));
+
+  return c.json({
+    message: "working"
+  });
+});
+
 app.post("/api/workflow/create/", async (c) => {
   const { name, graph }: { name: string, graph: Graph } = await c.req.json();
   const userId = c.get("jwtPayload");
+
+  console.log(userId);
 
   try {
     await prisma.user.update({
@@ -152,7 +169,6 @@ app.post("/api/workflow/:name", async (c) => {
   }
 
   const workflowGraph = workflow.graph;
-
   return c.json(user);
 });
 

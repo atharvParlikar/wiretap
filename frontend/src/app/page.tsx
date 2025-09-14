@@ -3,6 +3,7 @@
 import { addEdge, applyEdgeChanges, applyNodeChanges, ReactFlow } from "@xyflow/react";
 import { useCallback, useState } from "react";
 import '@xyflow/react/dist/style.css';
+import axios from "axios";
 
 const initialNodes = [
   { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
@@ -28,7 +29,7 @@ export default function Home() {
   );
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vw', height: '80vh' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -38,6 +39,13 @@ export default function Home() {
         fitView
         className="border-2 border-red-300"
       />
+
+      <button onClick={
+        async () => {
+          const res = await axios.get('http://localhost:8000/api/test', { withCredentials: true });
+          console.log(res);
+        }
+      }>click</button>
     </div>
   );
 }

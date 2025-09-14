@@ -8,9 +8,11 @@ export default function LoginPage() {
     (async () => {
       await axios.post("http://localhost:8000/login", {
         email: "atharvparlikar@gmail.com"
+      }, {
+        withCredentials: true
       });
     })();
-  });
+  }, []);
 
   return (
     <div>
