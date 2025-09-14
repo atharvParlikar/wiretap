@@ -1,0 +1,27 @@
+{
+  "name": "n8n",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun ./src/index.ts --watch"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/openai": "^0.6.11",
+    "@prisma/client": "^6.16.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "hono": "^4.9.6",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.1.5",
+    "openai": "^5.20.1",
+    "prisma": "^6.16.0",
+    "zod": "3"
+  }
+}

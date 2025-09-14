@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String     @unique
+  workflows   Workflow[]
+  credentials Json // Flexible key-value storage for things like API keys
+}
+
+type Workflow {
+  name  String
+  graph Json // Adjacency list stored as JSON
+}
