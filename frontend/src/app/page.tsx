@@ -1,51 +1,77 @@
 "use client";
 
-import { addEdge, applyEdgeChanges, applyNodeChanges, ReactFlow } from "@xyflow/react";
+import {
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  type Connection,
+  type Edge,
+  type EdgeChange,
+  type Node,
+  type NodeChange,
+  ReactFlow,
+} from "@xyflow/react";
 import { useCallback, useState } from "react";
-import '@xyflow/react/dist/style.css';
+import "@xyflow/react/dist/style.css";
 import axios from "axios";
-
-const initialNodes = [
-  { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
-  { id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
-];
-const initialEdges = [{ id: 'n1-n2', source: 'n1', target: 'n2' }];
+import { Sidebar } from "@/components/sidebar";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const onAddNode = useCallback((type: string) => {
+    const newNode: Node = {
+      id: `${type}-${Date.now()}`,
+      type: type === "default" ? "default" : type,
+      position: { x: Math.random() * 300, y: Math.random() * 300 },
+      data: { label: `${type} Node` },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  }, []);
 
   const onNodesChange = useCallback(
-    (changes: any) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
+    (changes: NodeChange<Node>[]) =>
+      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
   const onEdgesChange = useCallback(
-    (changes: any) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
+    (changes: EdgeChange<Edge>[]) =>
+      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
   const onConnect = useCallback(
-    (params: any) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    (params: Connection) =>
+      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
 
   return (
-    <div style={{ width: '100vw', height: '80vh' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        className="border-2 border-red-300"
-      />
-
-      <button onClick={
-        async () => {
-          const res = await axios.get('http://localhost:8000/api/test', { withCredentials: true });
-          console.log(res);
-        }
-      }>click</button>
+    <div className="flex h-screen">
+      <Sidebar onAddNode={onAddNode} />
+      <div className="flex-1">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          className="border-2 border-red-300"
+        />
+        <Button
+          onClick={async () => {
+            const res = await axios.get("http://localhost:8000/api/test", {
+              withCredentials: true,
+            });
+            console.log(res);
+          }}
+          className="absolute top-4 right-4 z-10"
+        >
+          click
+        </Button>
+      </div>
     </div>
   );
 }
