@@ -1,12 +1,11 @@
-import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
 import jwt from "jsonwebtoken";
 import type { Graph } from "./types";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
+import { db } from "./db/db";
 
 const app = new Hono();
-const prisma = new PrismaClient();
 
 const SECRET = "sup";
 
@@ -49,7 +48,7 @@ app.post('/login', async (c) => {
   const { email }: { email: string } = await c.req.json()
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { email }
     })
 
@@ -83,11 +82,12 @@ app.post('/signup', async (c) => {
 
   try {
     console.log('creating user...');
-    const user = await prisma.user.create({
+    const user = await db.user.create({
       data: {
         name,
         email,
-        credentials: {}
+        credentials: {},
+        workflows: []
       }
     });
 
@@ -108,18 +108,22 @@ app.get("/api/test", async (c) => {
   console.log(c.get("jwtPayload"));
 
   return c.json({
-    message: "working"
+    message: "working",
   });
 });
 
-app.post("/api/workflow/create/", async (c) => {
+app.post("/api/workflow/create", async (c) => {
+  console.log("got here");
   const { name, graph }: { name: string, graph: Graph } = await c.req.json();
   const userId = c.get("jwtPayload");
 
   console.log(userId);
 
+  console.log("graph");
+  console.log(graph);
+
   try {
-    await prisma.user.update({
+    await db.user.update({
       where: { id: userId },
       data: {
         workflows: {
@@ -130,6 +134,8 @@ app.post("/api/workflow/create/", async (c) => {
         }
       }
     });
+
+    return c.json({ success: true });
   } catch (e) {
     c.status(500);
     return c.json({
@@ -138,11 +144,11 @@ app.post("/api/workflow/create/", async (c) => {
   }
 });
 
-app.post("/api/workflow/:name", async (c) => {
+app.post("/api/workflow/trigger/:name", async (c) => {
   const { name: workflowName } = c.req.param();
   const userId = c.get("jwtPayload");
 
-  const user = await prisma.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
       id: userId
     }
@@ -169,8 +175,12 @@ app.post("/api/workflow/:name", async (c) => {
   }
 
   const workflowGraph = workflow.graph;
+
+  console.log(workflowGraph);
+
   return c.json(user);
 });
+
 
 export default {
   port: 8000,

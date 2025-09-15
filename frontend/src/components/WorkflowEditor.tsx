@@ -1,18 +1,9 @@
 "use client";
 
 import {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-  type Connection,
-  type Edge,
-  type EdgeChange,
-  type Node,
-  type NodeChange,
   ReactFlow,
   ConnectionLineType,
 } from "@xyflow/react";
-import { useCallback, useState } from "react";
 import "@xyflow/react/dist/style.css";
 import { Sidebar } from "./sidebar";
 import {
@@ -21,43 +12,11 @@ import {
   OutputPixelNode,
   ProcessPixelNode,
 } from "./CustomNodes";
+import { useWorkflowStore } from "@/lib/workflowStore";
 
 export function WorkflowEditor() {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
-
-  const onAddNode = useCallback((type: string) => {
-    const nodeTypes = {
-      default: "pixelNode",
-      input: "inputPixelNode",
-      output: "outputPixelNode",
-      process: "processPixelNode",
-    };
-
-    const newNode: Node = {
-      id: `${type}-${Date.now()}`,
-      type: nodeTypes[type as keyof typeof nodeTypes] || "pixelNode",
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: { label: `${type.toUpperCase()}` },
-    };
-    setNodes((nds) => [...nds, newNode]);
-  }, []);
-
-  const onNodesChange = useCallback(
-    (changes: NodeChange<Node>[]) =>
-      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge>[]) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
-  const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
-  );
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode } =
+    useWorkflowStore();
 
   const nodeTypes = {
     pixelNode: PixelNode,
@@ -68,7 +27,7 @@ export function WorkflowEditor() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar onAddNode={onAddNode} />
+      <Sidebar onAddNode={addNode} />
       <div className="flex-1">
         <ReactFlow
           nodes={nodes}
@@ -81,7 +40,7 @@ export function WorkflowEditor() {
           fitView
           className="bg-gray-50"
           defaultEdgeOptions={{
-            type: "step",
+            type: "smoothstep",
             style: { stroke: "#6b7280", strokeWidth: 1 },
           }}
         />

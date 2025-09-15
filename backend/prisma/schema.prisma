@@ -15,6 +15,12 @@ model User {
   credentials Json // Flexible key-value storage for things like API keys
 }
 
+model Nodes {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  type String // trigger | decision | executable | parallel? | terminating
+}
+
 type Workflow {
   name  String
   graph Json // Adjacency list stored as JSON

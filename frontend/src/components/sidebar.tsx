@@ -10,6 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
+import { useWorkflowStore } from "@/lib/workflowStore";
 
 interface SidebarProps {
   onAddNode: (type: string) => void;
@@ -18,10 +20,16 @@ interface SidebarProps {
 export function Sidebar({ onAddNode }: SidebarProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [workflowName, setWorkflowName] = useState("");
+  const { nodes, edges } = useWorkflowStore();
 
-  const handleSave = () => {
-    // Placeholder for sending request
-    console.log("Saving workflow:", workflowName);
+  const handleSave = async () => {
+    await axios.post("http://localhost:8000/api/workflow/create", {
+      name: workflowName,
+      graph: { nodes: nodes.map(n => { id: n.id }), edges },
+    }, {
+      withCredentials: true
+    });
+
     setIsDialogOpen(false);
     setWorkflowName("");
   };
