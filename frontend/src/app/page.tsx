@@ -1,76 +1,34 @@
-"use client";
-
-import {
-  addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
-  type Connection,
-  type Edge,
-  type EdgeChange,
-  type Node,
-  type NodeChange,
-  ReactFlow,
-} from "@xyflow/react";
-import { useCallback, useState } from "react";
-import "@xyflow/react/dist/style.css";
-import axios from "axios";
-import { Sidebar } from "@/components/sidebar";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
-
-  const onAddNode = useCallback((type: string) => {
-    const newNode: Node = {
-      id: `${type}-${Date.now()}`,
-      type: type === "default" ? "default" : type,
-      position: { x: Math.random() * 300, y: Math.random() * 300 },
-      data: { label: `${type} Node` },
-    };
-    setNodes((nds) => [...nds, newNode]);
-  }, []);
-
-  const onNodesChange = useCallback(
-    (changes: NodeChange<Node>[]) =>
-      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge>[]) =>
-      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
-  const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
-  );
-
   return (
-    <div className="flex h-screen">
-      <Sidebar onAddNode={onAddNode} />
-      <div className="flex-1">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          className="border-2 border-red-300"
-        />
-        <Button
-          onClick={async () => {
-            const res = await axios.get("http://localhost:8000/api/test", {
-              withCredentials: true,
-            });
-            console.log(res);
-          }}
-          className="absolute top-4 right-4 z-10"
-        >
-          click
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-8">
+            Welcome to Wiretap
+          </h1>
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+            Create and manage your workflows with our intuitive visual editor.
+            Build complex processes with ease using drag-and-drop functionality.
+          </p>
+          <div className="space-y-4">
+            <Link href="/workflow">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Open Workflow Maker
+              </Button>
+            </Link>
+            <div className="flex justify-center space-x-4">
+              <Link href="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="outline">Sign Up</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
