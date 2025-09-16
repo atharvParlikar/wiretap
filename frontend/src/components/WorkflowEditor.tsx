@@ -6,17 +6,19 @@ import { Sidebar } from "./sidebar";
 import {
   WebhookNode,
   EmailNode,
+  nodeSchemas,
 } from "./CustomNodes";
-import { EmailMappingDialog } from "./EmailMappingDialog";
+import { NodeMappingDialog } from "./NodeMappingDialog";
 import { useWorkflowStore } from "@/lib/workflowStore";
 import { useState } from "react";
 
 export function WorkflowEditor() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, updateNodeMappings } =
     useWorkflowStore();
-  const [isEmailMappingDialogOpen, setIsEmailMappingDialogOpen] = useState(false);
+  const [isNodeMappingDialogOpen, setIsNodeMappingDialogOpen] = useState(false);
   const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
-  const [webhookParams, setWebhookParams] = useState<string[]>([]);
+  const [sourceOutputs, setSourceOutputs] = useState<string[]>([]);
+  const [targetInputs, setTargetInputs] = useState<string[]>([]);
 
   const nodeTypes = {
     webhookNode: WebhookNode,
@@ -27,20 +29,35 @@ export function WorkflowEditor() {
     const targetNode = nodes.find(node => node.id === params.target);
     const sourceNode = nodes.find(node => node.id === params.source);
 
-    if (targetNode?.type === "emailNode" && sourceNode?.type === "webhookNode") {
-      // Show mapping dialog for email node connection
-      setPendingConnection(params);
-      setWebhookParams(sourceNode.data.params as string[] || []);
-      setIsEmailMappingDialogOpen(true);
-    } else {
-      // Normal connection
+    if (!targetNode || !sourceNode) return;
+
+    const sourceSchema = nodeSchemas[sourceNode.type as keyof typeof nodeSchemas];
+    const targetSchema = nodeSchemas[targetNode.type as keyof typeof nodeSchemas];
+
+    if (!sourceSchema || !targetSchema) {
+      // Unknown node types, allow connection
       onConnect(params);
+      return;
+    }
+
+    // Check if this is a valid connection (source has output, target has input)
+    const isValidConnection = sourceSchema.output.length > 0 && targetSchema.input.length > 0;
+
+    if (isValidConnection) {
+      // Show mapping dialog for valid input-output connections
+      setPendingConnection(params);
+      setSourceOutputs(sourceNode.data.params as string[] || []);
+      setTargetInputs(targetSchema.input);
+      setIsNodeMappingDialogOpen(true);
+    } else {
+      // Invalid connection (output to output or input to input), don't allow
+      console.warn("Invalid connection: cannot connect output to output or input to input");
     }
   };
 
-  const handleSaveMapping = (mappings: { to: string; subject: string; message: string }) => {
+  const handleSaveMapping = (mappings: { [key: string]: string }) => {
     if (pendingConnection) {
-      // Update the email node's mappings
+      // Update the target node's mappings
       updateNodeMappings(pendingConnection.target!, mappings);
       // Create the connection
       onConnect(pendingConnection);
@@ -67,10 +84,11 @@ export function WorkflowEditor() {
             style: { stroke: "#6b7280", strokeWidth: 1 },
           }}
         />
-        <EmailMappingDialog
-          open={isEmailMappingDialogOpen}
-          onOpenChange={setIsEmailMappingDialogOpen}
-          webhookParams={webhookParams}
+        <NodeMappingDialog
+          open={isNodeMappingDialogOpen}
+          onOpenChange={setIsNodeMappingDialogOpen}
+          sourceOutputs={sourceOutputs}
+          targetInputs={targetInputs}
           onSaveMapping={handleSaveMapping}
         />
       </div>
