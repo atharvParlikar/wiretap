@@ -144,8 +144,8 @@ app.post("/api/workflow/create", async (c) => {
   }
 });
 
-app.post("/api/workflow/trigger/:name", async (c) => {
-  const { name: workflowName } = c.req.param();
+app.post("/webhook/:username/:workflowName", async (c) => {
+  const { workflowName } = c.req.param();
   const userId = c.get("jwtPayload");
 
   const user = await db.user.findUnique({
@@ -181,6 +181,7 @@ app.post("/api/workflow/trigger/:name", async (c) => {
   return c.json(user);
 });
 
+app.post("/form/:username/:formName", async (c) => c.json({ message: "under construction" }));
 
 export default {
   port: 8000,

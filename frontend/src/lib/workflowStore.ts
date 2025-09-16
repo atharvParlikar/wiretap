@@ -38,19 +38,20 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     set((state) => ({
       edges: addEdge(params, state.edges),
     })),
-  addNode: (type) => {
+  addNode: (type, params?: string[]) => {
     const nodeTypes = {
       default: "pixelNode",
       input: "inputPixelNode",
       output: "outputPixelNode",
       process: "processPixelNode",
+      webhook: "webhookNode",
     };
 
     const newNode: Node = {
       id: `${type}-${Date.now()}`,
       type: nodeTypes[type as keyof typeof nodeTypes] || "pixelNode",
       position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: { label: `${type.toUpperCase()}` },
+      data: { label: `${type.toUpperCase()}`, ...(params && { params }) },
     };
     set((state) => ({ nodes: [...state.nodes, newNode] }));
   },

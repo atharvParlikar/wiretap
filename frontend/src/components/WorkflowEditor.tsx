@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  ReactFlow,
-  ConnectionLineType,
-} from "@xyflow/react";
+import { ReactFlow, ConnectionLineType } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Sidebar } from "./sidebar";
 import {
-  PixelNode,
-  InputPixelNode,
-  OutputPixelNode,
-  ProcessPixelNode,
+  WebhookNode,
 } from "./CustomNodes";
 import { useWorkflowStore } from "@/lib/workflowStore";
 
@@ -19,10 +13,7 @@ export function WorkflowEditor() {
     useWorkflowStore();
 
   const nodeTypes = {
-    pixelNode: PixelNode,
-    inputPixelNode: InputPixelNode,
-    outputPixelNode: OutputPixelNode,
-    processPixelNode: ProcessPixelNode,
+    webhookNode: WebhookNode,
   };
 
   return (
