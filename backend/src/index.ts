@@ -144,13 +144,12 @@ app.post("/api/workflow/create", async (c) => {
   }
 });
 
-app.post("/webhook/:username/:workflowName", async (c) => {
-  const { workflowName } = c.req.param();
-  const userId = c.get("jwtPayload");
+app.post("/webhook/:userid/:workflowName", async (c) => {
+  const { workflowName, userid } = c.req.param();
 
   const user = await db.user.findUnique({
     where: {
-      id: userId
+      id: userid
     }
   });
 
