@@ -19,6 +19,7 @@ interface WorkflowState {
   onEdgesChange: (changes: EdgeChange<Edge>[]) => void;
   onConnect: (params: Connection) => void;
   addNode: (type: string) => void;
+  updateNodeMappings: (nodeId: string, mappings: { to: string; subject: string; message: string }) => void;
 }
 
 export const useWorkflowStore = create<WorkflowState>((set) => ({
@@ -40,19 +41,29 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     })),
   addNode: (type, params?: string[]) => {
     const nodeTypes = {
-      default: "pixelNode",
-      input: "inputPixelNode",
-      output: "outputPixelNode",
-      process: "processPixelNode",
       webhook: "webhookNode",
+      email: "emailNode",
     };
 
     const newNode: Node = {
       id: `${type}-${Date.now()}`,
       type: nodeTypes[type as keyof typeof nodeTypes] || "pixelNode",
       position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: { label: `${type.toUpperCase()}`, ...(params && { params }) },
+      data: {
+        label: `${type.toUpperCase()}`,
+        ...(params && { params }),
+        ...(type === "email" && { mappings: { to: "", subject: "", message: "" } })
+      },
     };
     set((state) => ({ nodes: [...state.nodes, newNode] }));
+  },
+  updateNodeMappings: (nodeId, mappings) => {
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, mappings } }
+          : node
+      ),
+    }));
   },
 }));

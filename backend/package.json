@@ -18,10 +18,12 @@
     "@langchain/langgraph": "^0.4.9",
     "@langchain/openai": "^0.6.11",
     "@prisma/client": "^6.16.0",
+    "@types/nodemailer": "^7.0.1",
     "hono": "^4.9.6",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.1.5",
     "node-telegram-bot-api": "^0.66.0",
+    "nodemailer": "^7.0.6",
     "openai": "^5.20.1",
     "prisma": "^6.16.0",
     "zod": "3"

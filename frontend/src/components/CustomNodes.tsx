@@ -22,3 +22,25 @@ export function WebhookNode({
     </div>
   );
 }
+
+export function EmailNode({
+  data,
+}: {
+  data: { label: string; params?: string[] };
+}) {
+  return (
+    <div className={`${baseNodeClasses} border-blue-500 bg-blue-50`}>
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-2 h-2 bg-blue-500 border border-white absolute -left-1 top-1/2 -translate-y-1/2"
+      />
+      <div className={`${labelClasses} text-blue-700`}>{data.label}</div>
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-2 h-2 bg-blue-500 border border-white absolute -right-1 top-1/2 -translate-y-1/2"
+      />
+    </div>
+  );
+}
