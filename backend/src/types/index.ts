@@ -1,11 +1,13 @@
 export type Node = {
   id: string,
-  source: string,
-  target: string,
+  type: string,
+  data: {
+    input: Record<string, string>,
+    output: string[]
+  }
 }
 
 export type Edge = {
-  id: string,
   source: string,
   target: string,
 }

@@ -4,6 +4,7 @@ import type { Graph } from "./types";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { db } from "./db/db";
+import { Workflow } from "./modules/workflow";
 
 const app = new Hono();
 
@@ -146,6 +147,9 @@ app.post("/api/workflow/create", async (c) => {
 
 app.post("/webhook/:userid/:workflowName", async (c) => {
   const { workflowName, userid } = c.req.param();
+  const params = c.req.query();
+
+  console.log(params);
 
   const user = await db.user.findUnique({
     where: {
@@ -173,11 +177,13 @@ app.post("/webhook/:userid/:workflowName", async (c) => {
     });
   }
 
-  const workflowGraph = workflow.graph;
+  const workflowGraph = workflow.graph as Graph;
 
-  console.log(workflowGraph);
+  const workflowRunner = new Workflow(workflowGraph);
 
-  return c.json(user);
+  workflowRunner.invoke(params);
+
+  return c.json({ message: "workflow triggered" });
 });
 
 app.post("/form/:username/:formName", async (c) => c.json({ message: "under construction" }));
