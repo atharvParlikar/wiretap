@@ -45,15 +45,33 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
       email: "emailNode",
     };
 
+    // Initialize node data based on type
+    let nodeData: any = {
+      label: `${type.toUpperCase()}`,
+      input: {},
+      output: []
+    };
+
+    if (type === "webhook" && params) {
+      nodeData.input = params;
+      nodeData.output = params;
+    } else if (type === "email") {
+      // Email node: input fields with empty mappings, no output
+      nodeData.input = {
+        to: "",
+        subject: "",
+        message: ""
+      };
+    } else if (type === "webhook") {
+      // Webhook without params (shouldn't happen, unless user is stupid or new)
+      nodeData.output = [];
+    }
+
     const newNode: Node = {
       id: `${type}-${Date.now()}`,
       type: nodeTypes[type as keyof typeof nodeTypes] || "pixelNode",
       position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: {
-        label: `${type.toUpperCase()}`,
-        ...(params && { params }),
-        ...(type === "email" && { mappings: { to: "", subject: "", message: "" } })
-      },
+      data: nodeData,
     };
     set((state) => ({ nodes: [...state.nodes, newNode] }));
   },
@@ -61,7 +79,16 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     set((state) => ({
       nodes: state.nodes.map((node) =>
         node.id === nodeId
-          ? { ...node, data: { ...node.data, mappings } }
+          ? {
+            ...node,
+            data: {
+              ...node.data,
+              input: {
+                ...node.data.input as Record<string, string>, // to keep ts happy
+                ...mappings
+              }
+            }
+          }
           : node
       ),
     }));

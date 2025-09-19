@@ -41,12 +41,13 @@ export function WorkflowEditor() {
     }
 
     // Check if this is a valid connection (source has output, target has input)
-    const isValidConnection = sourceSchema.output.length > 0 && targetSchema.input.length > 0;
+    const isValidConnection = (sourceNode.data.output && sourceNode.data.output.length > 0) &&
+                             (targetNode.data.input && Object.keys(targetNode.data.input).length > 0);
 
     if (isValidConnection) {
       // Show mapping dialog for valid input-output connections
       setPendingConnection(params);
-      setSourceOutputs(sourceNode.data.params as string[] || []);
+      setSourceOutputs(sourceNode.data.output as string[] || []);
       setTargetInputs(targetSchema.input);
       setIsNodeMappingDialogOpen(true);
     } else {

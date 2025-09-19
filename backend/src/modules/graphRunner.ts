@@ -19,24 +19,36 @@ export class GraphRunner {
     const order = this.topologicalSort();
 
     for (const node of order) {
+      if (node.type === "webhookNode") {
+        node.data.output.forEach((param: string) => {
+          if (param in initialState) {
+            state[param] = initialState[param];
+          }
+        });
+        continue;
+      }
+
       const handler = this.handlers[node.type];
       if (!handler) throw new Error(`No handler found for node type "${node.type}"`);
 
-      // Build inputs for this node from state
       const inputs: Record<string, any> = {};
-      for (const [inputKey, stateKey] of Object.entries(node.data.input)) {
-        inputs[inputKey] = state[inputKey];
-      }
-
-      let outputs: Record<string, string> = {};
-
-      if (node.type === "webhookNode") {
-        outputs = await handler(initialState);
+      if (Array.isArray(node.data.input)) {
+        node.data.input.forEach((key: string) => {
+          inputs[key] = state[key];
+        });
       } else {
-        outputs = await handler(inputs);
+        for (const [inputKey, value] of Object.entries(node.data.input)) {
+          if (typeof value === 'string' && value.startsWith('{{') && value.endsWith('}}')) {
+            const param = value.slice(2, -2);
+            inputs[inputKey] = state[param];
+          } else {
+            inputs[inputKey] = value;
+          }
+        }
       }
 
-      // Store outputs back into state
+      const outputs = await handler(inputs);
+
       node.data.output.forEach((outputKey: string) => {
         if (!(outputKey in outputs)) {
           throw new Error(`Node "${node.id}" expected output "${outputKey}" but handler didn't return it`);

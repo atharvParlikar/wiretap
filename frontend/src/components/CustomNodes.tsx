@@ -11,7 +11,7 @@ const labelClasses = "text-xs font-medium";
 export const nodeSchemas = {
   webhookNode: {
     input: [], // Webhook nodes don't have inputs (they start workflows)
-    output: ["params"] // Webhook outputs its configured parameters
+    output: [] // Will be populated with actual parameter names when node is created
   },
   emailNode: {
     input: ["to", "subject", "message"], // Email needs these input fields
@@ -22,21 +22,14 @@ export const nodeSchemas = {
 export function WebhookNode({
   data,
 }: {
-  data: { label: string; params?: string[] };
+  data: { label: string; input: { [key: string]: string }; output: string[] };
 }) {
-  const schema = nodeSchemas.webhookNode;
+  const hasOutputs = data.output.length > 0;
 
   return (
     <div className={`${baseNodeClasses} border-green-500 bg-green-50`}>
-      {schema.input.length > 0 && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="w-2 h-2 bg-green-500 border border-white absolute -left-1 top-1/2 -translate-y-1/2"
-        />
-      )}
       <div className={`${labelClasses} text-green-700`}>{data.label}</div>
-      {schema.output.length > 0 && (
+      {hasOutputs && (
         <Handle
           type="source"
           position={Position.Right}
@@ -50,13 +43,14 @@ export function WebhookNode({
 export function EmailNode({
   data,
 }: {
-  data: { label: string; params?: string[]; mappings?: { [key: string]: string } };
+  data: { label: string; input: { [key: string]: string }; output: string[] };
 }) {
-  const schema = nodeSchemas.emailNode;
+  const hasInputs = Object.keys(data.input).length > 0;
+  const hasOutputs = data.output.length > 0;
 
   return (
     <div className={`${baseNodeClasses} border-blue-500 bg-blue-50`}>
-      {schema.input.length > 0 && (
+      {hasInputs && (
         <Handle
           type="target"
           position={Position.Left}
@@ -64,7 +58,7 @@ export function EmailNode({
         />
       )}
       <div className={`${labelClasses} text-blue-700`}>{data.label}</div>
-      {schema.output.length > 0 && (
+      {hasOutputs && (
         <Handle
           type="source"
           position={Position.Right}

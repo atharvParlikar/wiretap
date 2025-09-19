@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ChevronDown } from "lucide-react";
 
 interface NodeMappingDialogProps {
   open: boolean;
@@ -38,19 +40,14 @@ export function NodeMappingDialog({
     if (open && targetInputs) {
       const initialMappings: { [key: string]: string } = {};
       targetInputs.forEach(input => {
-        initialMappings[input] = "none";
+        initialMappings[input] = "";
       });
       setMappings(initialMappings);
     }
   }, [open, targetInputs]);
 
   const handleSave = () => {
-    // Convert "none" back to empty strings for the actual mapping
-    const cleanMappings: { [key: string]: string } = {};
-    Object.entries(mappings).forEach(([key, value]) => {
-      cleanMappings[key] = value === "none" ? "" : value;
-    });
-    onSaveMapping(cleanMappings);
+    onSaveMapping(mappings);
     onOpenChange(false);
   };
 
@@ -62,31 +59,44 @@ export function NodeMappingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Map Webhook Parameters to Email</DialogTitle>
+          <DialogTitle>Configure Node Inputs</DialogTitle>
           <DialogDescription>
-            Select which webhook parameter should be used for each email field.
+            Enter absolute values or select template references from the source node.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {targetInputs.map((inputField) => (
             <div key={inputField} className="space-y-2">
               <label className="text-sm font-medium capitalize">{inputField}</label>
-              <Select
-                value={mappings[inputField] || "none"}
-                onValueChange={(value) => updateMapping(inputField, value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select parameter" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {sourceOutputs.map((param, index) => (
-                    <SelectItem key={index} value={param}>
-                      {param}
+              <div className="flex gap-2">
+                <Input
+                  value={mappings[inputField] || ""}
+                  onChange={(e) => updateMapping(inputField, e.target.value)}
+                  placeholder={`Type a value or use template button`}
+                  className="flex-1"
+                />
+                <Select
+                  onValueChange={(value) => {
+                    if (value && value !== "none") {
+                      updateMapping(inputField, value);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-10 p-0">
+                    <ChevronDown className="h-4 w-4" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none" disabled>
+                      Templates
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {sourceOutputs.map((param, index) => (
+                      <SelectItem key={index} value={`{{${param}}}`}>
+                        {param}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           ))}
         </div>

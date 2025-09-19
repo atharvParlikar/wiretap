@@ -2,7 +2,7 @@ export type Node = {
   id: string,
   type: string,
   data: {
-    input: Record<string, string>,
+    input: Record<string, string> | string[],
     output: string[]
   }
 }
