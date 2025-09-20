@@ -43,6 +43,7 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     const nodeTypes = {
       webhook: "webhookNode",
       email: "emailNode",
+      openai: "openaiNode"
     };
 
     // Initialize node data based on type
@@ -56,14 +57,16 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
       nodeData.input = params;
       nodeData.output = params;
     } else if (type === "email") {
-      // Email node: input fields with empty mappings, no output
       nodeData.input = {
         to: "",
         subject: "",
         message: ""
       };
+    } else if (type === "openai") {
+      nodeData.input = {
+        prompt: ""
+      }
     } else if (type === "webhook") {
-      // Webhook without params (shouldn't happen, unless user is stupid or new)
       nodeData.output = [];
     }
 

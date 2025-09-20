@@ -71,6 +71,16 @@ export function Sidebar({ onAddNode }: SidebarProps) {
             Email
           </div>
         </Button>
+
+        <Button
+          onClick={() => onAddNode("openai")}
+          className="w-full justify-start h-8 text-left bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 text-xs"
+        >
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+            OpenAI
+          </div>
+        </Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
