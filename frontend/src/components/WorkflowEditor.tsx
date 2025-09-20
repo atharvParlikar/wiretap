@@ -6,6 +6,7 @@ import { Sidebar } from "./sidebar";
 import {
   WebhookNode,
   EmailNode,
+  OpenAINode,
   nodeSchemas,
 } from "./CustomNodes";
 import { NodeMappingDialog } from "./NodeMappingDialog";
@@ -23,6 +24,7 @@ export function WorkflowEditor() {
   const nodeTypes = {
     webhookNode: WebhookNode,
     emailNode: EmailNode,
+    openaiNode: OpenAINode,
   };
 
   const handleConnect = (params: Connection) => {

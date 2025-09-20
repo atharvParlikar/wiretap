@@ -80,20 +80,20 @@ export function OpenAINode({
   const hasOutputs = data.output.length > 0;
 
   return (
-    <div className={`${baseNodeClasses} border-gray-800 bg-gray-600`}>
+    <div className={`${baseNodeClasses} border-purple-500 bg-purple-50`}>
       {hasInputs && (
         <Handle
           type="target"
           position={Position.Left}
-          className="w-2 h-2 bg-blue-500 border border-white absolute -left-1 top-1/2 -translate-y-1/2"
+          className="w-2 h-2 bg-purple-500 border border-white absolute -left-1 top-1/2 -translate-y-1/2"
         />
       )}
-      <div className={`${labelClasses} text-white-500`}>{data.label}</div>
+      <div className={`${labelClasses} text-purple-700`}>{data.label}</div>
       {hasOutputs && (
         <Handle
           type="source"
           position={Position.Right}
-          className="w-2 h-2 bg-blue-500 border border-white absolute -right-1 top-1/2 -translate-y-1/2"
+          className="w-2 h-2 bg-purple-500 border border-white absolute -right-1 top-1/2 -translate-y-1/2"
         />
       )}
     </div>

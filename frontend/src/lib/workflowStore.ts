@@ -56,17 +56,19 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
     if (type === "webhook" && params) {
       nodeData.input = params;
       nodeData.output = params;
-    } else if (type === "email") {
-      nodeData.input = {
-        to: "",
-        subject: "",
-        message: ""
-      };
-    } else if (type === "openai") {
-      nodeData.input = {
-        prompt: ""
-      }
-    } else if (type === "webhook") {
+     } else if (type === "email") {
+       nodeData.input = {
+         to: "",
+         subject: "",
+         message: ""
+       };
+       nodeData.output = ["success"];
+     } else if (type === "openai") {
+       nodeData.input = {
+         prompt: ""
+       };
+       nodeData.output = ["response"];
+     } else if (type === "webhook") {
       nodeData.output = [];
     }
 
